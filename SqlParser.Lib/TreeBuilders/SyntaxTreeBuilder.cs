@@ -10,7 +10,7 @@ namespace SqlParser.Lib.TreeBuilders
         public static SyntaxNode Build(IList<SyntaxToken> tokens)
         {
             if (tokens == null || tokens.Count == 0) throw new ArgumentException("No Tokens found", nameof(tokens));
-            
+
             SyntaxNode rootNode = new SyntaxNode(tokens[0]);
             SyntaxNode currentNode = rootNode;
 
@@ -32,6 +32,9 @@ namespace SqlParser.Lib.TreeBuilders
 
         private static SyntaxNode PlaceOperationToken(OperationToken token, SyntaxNode currentNode)
         {
+            // Insertion of operation tokens is right-biased (will try to use the right "child" position of a node first),
+            // except in the case where the new node's precendence is less than that of the node being examined.
+
             var newNode = new SyntaxNode(token);
 
             var currentOperationToken = (OperationToken)currentNode.Token;
@@ -70,6 +73,9 @@ namespace SqlParser.Lib.TreeBuilders
 
         private static void PlaceToken(SyntaxToken token, SyntaxNode rootNode)
         {
+            // Insertion of non-operation tokens is left-biased (will try to use the left "child" position of a node first),
+            // however traversal to find its place in the tree favours right over left.
+
             var newNode = new SyntaxNode(token);
             var placed = false;
             var currentNode = rootNode;

@@ -8,7 +8,7 @@ namespace SqlParser.Lib.LanguageObjects
         {
             this.Token = token;
         }
-        
+
         public SyntaxToken Token { get; }
         public SyntaxNode Left { get; set; }
         public SyntaxNode Right { get; set; }
