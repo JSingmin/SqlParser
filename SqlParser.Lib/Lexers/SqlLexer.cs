@@ -17,6 +17,7 @@ namespace SqlParser.Lib.Lexers
 
         private static IList<SyntaxToken> TokeniseStatement(string statement, IList<SyntaxToken> tokens, IReadOnlyCollection<OperationToken> operationTokens)
         {
+            // find the index of all provided operation tokens, and select the earliest operation token found
             var firstOperationFound = operationTokens
                 .ToDictionary(t => t, t => t.IndexOf(statement))
                 .Where(o => o.Value >= 0)
@@ -25,11 +26,14 @@ namespace SqlParser.Lib.Lexers
 
             if (!firstOperationFound.Equals(default(KeyValuePair<OperationToken, int>)))
             {
+                // if the statement doesn't start with the found operation token,
+                // add the part before the found index as a non-operation token
                 if (firstOperationFound.Value > 0)
                 {
                     tokens.Add(new SyntaxToken(statement.Substring(0, firstOperationFound.Value).TrimEnd()));
                 }
 
+                // Add the operation token, and recursively tokenise the remainder of the statement
                 tokens.Add(firstOperationFound.Key);
                 return TokeniseStatement(
                     statement.Substring(firstOperationFound.Value + firstOperationFound.Key.Value.Length).TrimStart(),
@@ -37,6 +41,7 @@ namespace SqlParser.Lib.Lexers
                     operationTokens);
             }
 
+            // No operation tokens were found, the remainder of the statement is a non-operation.
             tokens.Add(new SyntaxToken(statement));
             return tokens;
         }
